@@ -1,122 +1,72 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Shop</title>
-    <!-- ИСПРАВЛЕНО: Теперь подключен ПРАВИЛЬНЫЙ скрипт Telegram Web App -->
     <script src="https://telegram.org"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1c1c1c;
-            color: white;
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 { color: #0088cc; font-size: 24px; margin-bottom: 5px; }
-        .subtitle { color: #aaa; margin-bottom: 20px; font-size: 14px; }
-        
-        .section-title {
-            width: 100%;
-            border-bottom: 2px solid #333;
-            padding-bottom: 5px;
-            margin: 20px 0 10px 0;
-            color: #ffcc00;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .card {
-            background: #2a2a2a;
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #444;
-            transition: transform 0.2s;
-        }
-
-        .card:active { transform: scale(0.95); }
-
-        .card img {
-            width: 80%;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .card h3 { font-size: 16px; margin: 5px 0; }
-        .price { color: #4caf50; font-weight: bold; margin-bottom: 10px; }
-
-        button {
-            background-color: #0088cc;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-        }
-
-        button:hover { background-color: #00aaff; }
+        body { font-family: sans-serif; background: #1c1c1c; color: white; text-align: center; padding: 20px; }
+        .hidden { display: none; }
+        input { padding: 10px; margin: 10px; border-radius: 5px; border: none; width: 80%; }
+        button { background: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        #profile-icon { position: absolute; top: 10px; right: 10px; font-size: 24px; display: none; }
+        .card { background: #2a2a2a; padding: 15px; margin: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>Roblox Shop</h1>
-    <div class="subtitle">Магазин от @bunnytail_x</div>
+    <div id="profile-icon">👤</div>
 
-    <div class="section-title">Adopt Me 🐾</div>
-    <div class="container">
-        <div class="card">
-            <img src="https://placeholder.com" alt="Pet">
-            <h3>Shadow Dragon</h3>
-            <div class="price">500 руб.</div>
-            <button onclick="buyItem('Shadow Dragon')">Купить</button>
-        </div>
-        <div class="card">
-            <img src="https://placeholder.com" alt="Pet">
-            <h3>Frost Dragon</h3>
-            <div class="price">450 руб.</div>
-            <button onclick="buyItem('Frost Dragon')">Купить</button>
+    <!-- ЭКРАН ВХОДА -->
+    <div id="auth-screen">
+        <h2>Верификация</h2>
+        <p>Введите ваш ник в Telegram:</p>
+        <input type="text" id="username" placeholder="@username">
+        <button onclick="requestCode()">Получить код</button>
+        
+        <div id="code-section" class="hidden">
+            <p>Введите 5-значный код из бота:</p>
+            <input type="number" id="v-code" placeholder="00000">
+            <button onclick="verifyCode()">Войти</button>
         </div>
     </div>
 
-    <div class="section-title">Murder Mystery 2 🔪</div>
-    <div class="container">
+    <!-- МАГАЗИН (СКРЫТ ПО УМОЛЧАНИЮ) -->
+    <div id="shop-screen" class="hidden">
+        <h2>Магазин Roblox</h2>
         <div class="card">
-            <img src="https://placeholder.com" alt="Knife">
-            <h3>Nik's Scythe</h3>
-            <div class="price">1000 руб.</div>
-            <button onclick="buyItem('Nik\'s Scythe')">Купить</button>
-        </div>
-        <div class="card">
-            <img src="https://placeholder.com" alt="Knife">
-            <h3>Harvester</h3>
-            <div class="price">800 руб.</div>
-            <button onclick="buyItem('Harvester')">Купить</button>
+            <h3>Shadow Dragon</h3>
+            <button onclick="buy('Shadow Dragon')">Купить</button>
         </div>
     </div>
 
     <script>
-        // Инициализируем Web App
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачивает окно на весь экран
+        tg.expand();
 
-        function buyItem(name) {
-            // Отправляем данные боту
-            tg.sendData("Покупка: " + name);
-            tg.close(); // Закрываем окно после отправки
+        function requestCode() {
+            let user = document.getElementById('username').value;
+            if(user.length > 2) {
+                tg.sendData("get_code"); // Просим бота прислать код
+                document.getElementById('code-section').classList.remove('hidden');
+            }
+        }
+
+        function verifyCode() {
+            let code = document.getElementById('v-code').value;
+            // В реальности проверку лучше делать через сервер, но для примера отправим боту
+            tg.sendData("verify:" + code);
+            
+            // Имитируем успешный вход для интерфейса
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('shop-screen').classList.remove('hidden');
+            document.getElementById('profile-icon').style.display = 'block';
+        }
+
+        function buy(item) {
+            tg.sendData("buy:" + item);
+            tg.close();
         }
     </script>
 </body>
 </html>
-

@@ -1,42 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bunny Shop Auth</title>
     <script src="https://telegram.org"></script>
     <style>
-        body { font-family: sans-serif; background: #1c1c1c; color: white; text-align: center; padding: 20px; }
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
+        .auth-card { background: #1e1e1e; padding: 25px; border-radius: 20px; margin-top: 50px; border: 1px solid #3399ff; }
+        input { width: 80%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid #333; background: #252525; color: white; font-size: 20px; text-align: center; }
+        button { width: 85%; padding: 12px; border-radius: 10px; border: none; background: #3399ff; color: white; font-weight: bold; cursor: pointer; }
+        #profile-icon { position: fixed; top: 15px; right: 15px; background: #3399ff; padding: 5px 12px; border-radius: 20px; display: none; }
         .hidden { display: none; }
-        input { padding: 10px; margin: 10px; border-radius: 5px; border: none; width: 80%; }
-        button { background: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        #profile-icon { position: absolute; top: 10px; right: 10px; font-size: 24px; display: none; }
-        .card { background: #2a2a2a; padding: 15px; margin: 10px; border-radius: 10px; }
+        .item { background: #1e1e1e; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
-    <div id="profile-icon">👤</div>
+    <div id="profile-icon">👤 Verified</div>
 
-    <!-- ЭКРАН ВХОДА -->
-    <div id="auth-screen">
-        <h2>Верификация</h2>
-        <p>Введите ваш ник в Telegram:</p>
-        <input type="text" id="username" placeholder="@username">
-        <button onclick="requestCode()">Получить код</button>
+    <div id="auth-screen" class="auth-card">
+        <h2>Верифікація</h2>
+        <p id="status-text">Натисніть кнопку, щоб отримати код у чат</p>
+        <button id="send-btn" onclick="sendCodeViaToken()">Отримати код за токеном</button>
         
-        <div id="code-section" class="hidden">
-            <p>Введите 5-значный код из бота:</p>
-            <input type="number" id="v-code" placeholder="00000">
-            <button onclick="verifyCode()">Войти</button>
+        <div id="verify-block" class="hidden">
+            <input type="number" id="input-code" placeholder="Введіть код">
+            <button onclick="checkCode()" style="background: #00cc66;">Увійти</button>
         </div>
     </div>
 
-    <!-- МАГАЗИН (СКРЫТ ПО УМОЛЧАНИЮ) -->
     <div id="shop-screen" class="hidden">
         <h2>Магазин Roblox</h2>
-        <div class="card">
+        <div class="item">
             <h3>Shadow Dragon</h3>
-            <button onclick="buy('Shadow Dragon')">Купить</button>
+            <button onclick="alert('Замовлення надіслано!')">Купити</button>
         </div>
     </div>
 
@@ -44,29 +42,43 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        function requestCode() {
-            let user = document.getElementById('username').value;
-            if(user.length > 2) {
-                tg.sendData("get_code"); // Просим бота прислать код
-                document.getElementById('code-section').classList.remove('hidden');
+        // КОНФІГУРАЦІЯ
+        const botToken = '8557677135:AAH9yPGPO8d3Zzj5mYUI-3BtoI_BE-RZIw0';
+        const chatId = tg.initDataUnsafe.user.id; // Отримуємо ID користувача автоматично
+        let generatedCode = null;
+
+        async function sendCodeViaToken() {
+            // Геруємо 5-значний код
+            generatedCode = Math.floor(10000 + Math.random() * 90000);
+            
+            const message = `🔐 Твій код верифікації для входу в магазин: <b>${generatedCode}</b>`;
+            const url = `https://telegram.org{botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
+
+            try {
+                let response = await fetch(url);
+                if (response.ok) {
+                    document.getElementById('status-text').innerText = "Код надіслано у ваш чат з ботом!";
+                    document.getElementById('send-btn').classList.add('hidden');
+                    document.getElementById('verify-block').classList.remove('hidden');
+                } else {
+                    alert("Помилка при надсиланні. Переконайтеся, що ви запустили бота!");
+                }
+            } catch (e) {
+                alert("Помилка запиту: " + e);
             }
         }
 
-        function verifyCode() {
-            let code = document.getElementById('v-code').value;
-            // В реальности проверку лучше делать через сервер, но для примера отправим боту
-            tg.sendData("verify:" + code);
-            
-            // Имитируем успешный вход для интерфейса
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('shop-screen').classList.remove('hidden');
-            document.getElementById('profile-icon').style.display = 'block';
-        }
-
-        function buy(item) {
-            tg.sendData("buy:" + item);
-            tg.close();
+        function checkCode() {
+            let userInp = document.getElementById('input-code').value;
+            if (userInp == generatedCode) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('shop-screen').classList.remove('hidden');
+                document.getElementById('profile-icon').style.display = 'block';
+            } else {
+                alert("Невірний код! Перевірте повідомлення від бота.");
+            }
         }
     </script>
 </body>
 </html>
+

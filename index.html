@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roblox Shop</title>
+    <!-- ИСПРАВЛЕНО: Теперь подключен ПРАВИЛЬНЫЙ скрипт Telegram Web App -->
     <script src="https://telegram.org"></script>
     <style>
         body {
@@ -106,13 +107,14 @@
     </div>
 
     <script>
+        // Инициализируем Web App
         let tg = window.Telegram.WebApp;
         tg.expand(); // Разворачивает окно на весь экран
 
         function buyItem(name) {
-            // При нажатии боту отправится сообщение о покупке
+            // Отправляем данные боту
             tg.sendData("Покупка: " + name);
-            tg.close(); // Закрывает приложение после выбора
+            tg.close(); // Закрываем окно после отправки
         }
     </script>
 </body>

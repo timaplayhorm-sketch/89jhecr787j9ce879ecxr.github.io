@@ -239,14 +239,18 @@
         }
 
         function checkout() {
-            if (cart.length === 0) {
-                alert("Корзина пуста!");
-                return;
-            }
-            document.getElementById('checkout-btn').style.display = 'none';
-            document.getElementById('contact-btn').style.display = 'block';
-            alert("Заказ сформирован! Нажмите кнопку 'НАПИСАТЬ ПРОДАВЦУ', чтобы завершить покупку в Telegram.");
-        }
+    if (cart.length === 0) {
+        // Вместо alert можно просто ничего не делать или вывести текст в модалку
+        return; 
+    }
+    
+    // Скрываем кнопку оформления и показываем кнопку связи
+    document.getElementById('checkout-btn').style.display = 'none';
+    document.getElementById('contact-btn').style.display = 'block';
+    
+    // Строку с alert я убрал, теперь окно выпрыгивать не будет
+}
+
     </script>
 </body>
 </html>

@@ -93,7 +93,7 @@
     <div id="cart-modal">
         <h2 id="modal-title">Корзина</h2>
         <div id="cart-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;"></div>
-        <h3 id="total-text">Итого: <span id="cart-total">0</span> грн</h3>
+        <h3 id="total-text">Итого: <span id="cart-total">0</span> ₽</h3>
         
         <button id="checkout-btn" class="buy-button" style="background:var(--accent-gold); color:#000" onclick="checkout()">Оформить заказ</button>
         
@@ -176,7 +176,7 @@
                     <div class="item-card">
                         <img src="${item.img}" alt="${item.name}">
                         <h3>${item.name}</h3>
-                        <div class="item-price">${item.price} грн</div>
+                        <div class="item-price">${item.price} ₽</div>
                         <button class="buy-button" onclick="addToCart('${item.name}', ${item.price})">В корзину</button>
                     </div>
                 `;
